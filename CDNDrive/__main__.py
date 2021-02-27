@@ -178,13 +178,20 @@ def tr_download(i, block_dict, f, offset):
         if not succ: break
         if '@s_0,h_2000' in url:
             url = url.replace('@s_0,h_2000','')
-        log(url)
+        # log(url)
         block = api.image_download(url)
         if not block:
             log(f"分块{i + 1}/{nblocks}第{j + 1}次下载失败")
             if j == 9: succ = False
             continue
-        block = encoder.decode(block)
+        try:
+            block = encoder.decode(block)
+        except Exception as e:
+            print('Error:',e)
+            # log(url)
+            log(f"分块{i + 1}/{nblocks}第{j + 1}次解码失败")
+            if j == 9: succ = False
+            continue
         if calc_sha1(block) == block_dict['sha1']:
             with lock:
                 f.seek(offset)
